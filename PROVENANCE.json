@@ -2,7 +2,7 @@
   "origin": "OpenVenue",
   "source_sha256": {
     "transparency.py": "e9e1b58474e992ad44aba14020c4ee0e5c58f891229274ec35aab3a9574e07d9",
-    "bond_transparency.py": "f4208eb3e140b911a108a2cf16b8a0f7645168538b807449597ba764fbeb752a"
+    "bond_transparency.py": "a4dcb0af0af441be3b31ce69e0f19b06a3de46315b41db473f33188b139cef29"
   },
   "content": "Code only; no source datasets included"
 }

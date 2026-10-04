@@ -11,6 +11,32 @@ from esma_fitrs.debt import SCHEMA, instrument, records
 ISIN = "XS3373438483"
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://fitrs.esma.europa.eu/file.zip",
+        "https://elsewhere.test/file.zip",
+        "https://user@fitrs.esma.europa.eu/file.zip",
+        "https://fitrs.esma.europa.eu:8443/file.zip",
+    ],
+)
+def test_invalid_download_destination_is_rejected_before_network(tmp_path, monkeypatch, url):
+    from esma_fitrs import debt as module
+
+    source = {"file_name": "test.zip", "creation_date": "2026-10-03", "download_link": url}
+    monkeypatch.setattr(
+        module, "catalogue", lambda kind, *args: [source] if kind == "FULNCR" else []
+    )
+
+    def forbidden_request(*args, **kwargs):
+        pytest.fail("An invalid destination must never be requested")
+
+    monkeypatch.setattr(module, "urlopen", forbidden_request)
+    with pytest.raises(ValueError, match="destination"):
+        module.sync(tmp_path, date(2026, 10, 4))
+    assert not (tmp_path / "bond-transparency/CURRENT").exists()
+
+
 def test_sync_is_atomic_when_a_source_has_no_recognised_records(tmp_path, monkeypatch):
     from esma_fitrs import debt as module
 

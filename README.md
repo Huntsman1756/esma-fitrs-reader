@@ -21,8 +21,11 @@ complete coverage of every derivative category or every historical revision.
 Only sync accesses the network. Queries use captured Parquet. No paid feed, broker login,
 OpenInstrument, OpenVenue server or dataset is required. No data is shipped in this repo.
 
-Code: MIT. ESMA data and legal applicability retain their source conditions. Unofficial
-project, not endorsed by ESMA. SSTI publication does not restore its former waiver.
+Code: MIT. No source datasets are distributed in this repository. Downloading, using or
+redistributing ESMA data is governed separately by the source conditions; the MIT code
+licence grants no additional rights to the data. Review those conditions for your intended
+use, including redistribution. Legal applicability requires a separate assessment.
+Unofficial project, not endorsed by ESMA. SSTI publication does not restore its former waiver.
 
 Sources: [download instructions](https://www.esma.europa.eu/document/firds-transparency-download-instructions),
 [non-equity guidance](https://www.esma.europa.eu/annual-transparency-calculations-non-equity-instruments).

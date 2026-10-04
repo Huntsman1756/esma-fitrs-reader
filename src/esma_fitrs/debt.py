@@ -56,6 +56,18 @@ NOTICE = (
 RULES_URL = "https://www.esma.europa.eu/annual-transparency-calculations-non-equity-instruments"
 
 
+def validate_download_url(url: str) -> None:
+    parsed = urlparse(url)
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "fitrs.esma.europa.eu"
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port not in (None, 443)
+    ):
+        raise ValueError("Unexpected debt FITRS download destination")
+
+
 def catalogue(prefix: str, as_of: date, since: str | None = None) -> list[dict]:
     q = f"file_name:{prefix}_*_D_* AND creation_date:[* TO {as_of.isoformat()}T23:59:59Z]"
     if since:
@@ -89,8 +101,8 @@ def catalogue(prefix: str, as_of: date, since: str | None = None) -> list[dict]:
     groups = {}
     for row in rows:
         match = re.fullmatch(prefix + r"_(\d{8})_D_(\d+)of(\d+)\.zip", row["file_name"])
-        parsed = urlparse(row["download_link"])
-        if not match or parsed.scheme != "https" or parsed.hostname != "fitrs.esma.europa.eu":
+        validate_download_url(row["download_link"])
+        if not match:
             raise ValueError("Unexpected debt FITRS file")
         stamp, part, total = match.groups()
         if stamp != row["creation_date"][:10].replace("-", ""):
@@ -180,12 +192,11 @@ def sync(root: Path, as_of: date | None = None) -> dict:
     staging.mkdir()
     manifests = []
     for index, source in enumerate(sources):
+        validate_download_url(source["download_link"])
         path = raw / source["file_name"]
         if not path.exists():
             with urlopen(source["download_link"], timeout=120) as response:
-                final = urlparse(response.geturl())
-                if final.scheme != "https" or final.hostname != "fitrs.esma.europa.eu":
-                    raise ValueError("Unexpected debt FITRS download destination")
+                validate_download_url(response.geturl())
                 payload = response.read(100_000_001)
             if len(payload) > 100_000_000:
                 raise ValueError("Debt FITRS compressed payload exceeds limit")
